@@ -13,10 +13,11 @@ compiled with Arduino 1.0.5 for neopixel library support
 #define M_WIDTH 8  // matrix width
 #define M_HEIGHT 9 // matrix height
 #define LED_PIN 2  // NeoPixel LED strand data
- 
+#define BUTTON_PIN 4 // Our button
+
 unsigned char reduce = 9; // used to reduce brightness
-const unsigned int BUTTON_PIN = 4; // Button for Flames higher
- 
+bool high_flame = false;
+
 typedef struct
 {
   unsigned char r;
@@ -43,7 +44,7 @@ const unsigned char valueMask[M_WIDTH][M_HEIGHT]={
     {255, 160, 128, 96 , 96 , 128, 160, 255},
     {255, 192, 160, 128, 128, 160, 192, 255}
 };
- 
+
 //these are the hues for the fire,
 //should be between 0 (red) to about 13 (yellow)
 const unsigned char hueMask[M_WIDTH][M_HEIGHT]={
@@ -166,10 +167,18 @@ void drawFrame(int pcnt){
     for (unsigned char x=0;x<M_HEIGHT;x++) {
         colorHSV.h = hueMask[y][x];
         colorHSV.s = 255;
+        unsigned char mask = valueMask[y][x];
+        if (high_flame) {
+            if (mask < 64) {
+                mask = 0;
+            } else {
+                mask -= 64;
+            }
+        }
         nextv =
             (((100.0-pcnt)*matrix[x][y]
           + pcnt*matrix[x][y-1])/100.0)
-          - valueMask[y][x];
+          - mask;
         colorHSV.v = (unsigned char)max(0, nextv);
        
         HSVtoRGB(&colorRGB, &colorHSV);
@@ -225,8 +234,9 @@ void loop()
         delay(100);
         const int BUTTON_STATE = digitalRead(BUTTON_PIN);
         if (BUTTON_STATE == HIGH)
-        int y = y+10;
+            high_flame = true;
         else
+            high_flame = false;
         shiftUp();
         generateLine();
         pcnt = 0;
