@@ -169,11 +169,7 @@ void drawFrame(int pcnt){
         colorHSV.s = 255;
         unsigned char mask = valueMask[y][x];
         if (high_flame) {
-            if (mask < 64) {
-                mask = 0;
-            } else {
-                mask -= 64;
-            }
+            mask = 0;
         }
         nextv =
             (((100.0-pcnt)*matrix[x][y]
@@ -230,13 +226,14 @@ void setup()
  
 void loop()
 {
+    const int BUTTON_STATE = digitalRead(BUTTON_PIN);
+    if (BUTTON_STATE == HIGH)
+        high_flame = true;
+    else
+        high_flame = false;
+
     if (pcnt >= 100){
         delay(100);
-        const int BUTTON_STATE = digitalRead(BUTTON_PIN);
-        if (BUTTON_STATE == HIGH)
-            high_flame = true;
-        else
-            high_flame = false;
         shiftUp();
         generateLine();
         pcnt = 0;
