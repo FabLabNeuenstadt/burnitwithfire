@@ -15,7 +15,7 @@ compiled with Arduino 1.0.5 for neopixel library support
 #define LED_PIN 2  // NeoPixel LED strand data
 #define BUTTON_PIN 4 // Our button
 
-unsigned char reduce = 9; // used to reduce brightness
+unsigned char reduce = 4; // used to reduce brightness
 bool high_flame = false;
 
 typedef struct
@@ -35,27 +35,27 @@ typedef struct
  
 //these values are substracetd from the generated values to give a shape to the animation
 const unsigned char valueMask[M_WIDTH][M_HEIGHT]={
-    {32 , 0  , 0  , 0  , 0  , 0  , 0  , 32 },
-    {64 , 0  , 0  , 0  , 0  , 0  , 0  , 64 },
-    {96 , 32 , 0  , 0  , 0  , 0  , 32 , 96 },
-    {128, 64 , 32 , 0  , 0  , 32 , 64 , 128},
-    {160, 96 , 64 , 32 , 32 , 64 , 96 , 160},
-    {192, 128, 96 , 64 , 64 , 96 , 128, 192},
-    {255, 160, 128, 96 , 96 , 128, 160, 255},
-    {255, 192, 160, 128, 128, 160, 192, 255}
+    {32, 64 , 64 , 32 , 32 , 64 , 64 , 32, 32},
+    {32, 64 , 64 , 32 , 32 , 64 , 64 , 32, 32},
+    {32, 64 , 64 , 32 , 32 , 64 , 64 , 32, 32},
+    {32, 64 , 64 , 32 , 32 , 64 , 64 , 32, 32},
+    {32, 64 , 64 , 32 , 32 , 64 , 64 , 32, 32},
+    {32, 64 , 64 , 32 , 32 , 64 , 64 , 32, 32},
+    {32, 64 , 64 , 32 , 32 , 64 , 64 , 32, 32},
+    {32, 64 , 64 , 32 , 32 , 64 , 64 , 32, 32},
 };
 
 //these are the hues for the fire,
 //should be between 0 (red) to about 13 (yellow)
 const unsigned char hueMask[M_WIDTH][M_HEIGHT]={
-    {1, 4, 7, 9, 9, 8, 4, 1},
-    {1, 3, 5, 7, 9, 7, 3, 1},
-    {1, 3, 5, 6, 7, 6, 3, 1},
-    {1, 2, 4, 5, 5, 5, 2, 1},
-    {1, 2, 4, 4, 4, 4, 2, 1},
-    {0, 1, 2, 3, 3, 2, 1, 0},
-    {0, 0, 1, 2, 2, 1, 0, 0},
-    {0, 0, 0, 1, 1, 0, 0, 0}
+    {3, 3, 3, 3, 3, 3, 3, 3, 3},
+    {3, 3, 3, 3, 3, 3, 3, 3, 3},
+    {3, 3, 3, 3, 3, 3, 3, 3, 3},
+    {3, 3, 3, 3, 3, 3, 3, 3, 3},
+    {3, 3, 3, 3, 3, 3, 3, 3, 3},
+    {3, 3, 3, 3, 3, 3, 3, 3, 3},
+    {3, 3, 3, 3, 3, 3, 3, 3, 3},
+    {3, 3, 3, 3, 3, 3, 3, 3, 3},
 };
  
 // The origin of the screen, (0,0) is at the bottom left corner.
@@ -124,7 +124,7 @@ void setPixel(unsigned char x, unsigned char y, unsigned char colorR, unsigned c
  
 // shift origin and adjust white balance (by adding more green to show yellow)
  // original: strip.setPixelColor(M_WIDTH*(M_HEIGHT-y-1) + x, colorR/reduce, 5*colorG/reduce, colorB/reduce);
-    strip.setPixelColor(M_WIDTH*(y-4) + x, colorR/reduce, 5*colorG/reduce, colorB/reduce);
+    strip.setPixelColor(M_WIDTH*(y+1) + x, colorR/reduce, 5*colorG/reduce, colorB/reduce);
 }
  
 /**
@@ -170,7 +170,8 @@ void drawFrame(int pcnt){
         unsigned char mask = valueMask[y][x];
         if (high_flame) {
             mask = 0;
-        }
+            }
+             else { mask += 64; }
         nextv =
             (((100.0-pcnt)*matrix[x][y]
           + pcnt*matrix[x][y-1])/100.0)
@@ -233,7 +234,7 @@ void loop()
         high_flame = false;
 
     if (pcnt >= 100){
-        delay(100);
+        delay(30);
         shiftUp();
         generateLine();
         pcnt = 0;
